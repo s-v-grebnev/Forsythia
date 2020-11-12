@@ -54,9 +54,44 @@ class MontyCurve:
         j = t0 * j
         return j
 
+    def xdbladd(self, P, Q, D):
+        assert(P.parent == Q.parent == D.parent == self)
+        t0 = P.X + P.Z
+        t1 = P.X - P.Z
+        x2p = t0 * t0
+        t2 = Q.X - Q.Z
+        xpq = Q.X + Q.Z
+        t0 = t0 * t2
+        z2p = t1 * t1
+        t1 = t1 * xpq
+        t2 = x2p - z2p
+        x2p = x2p * z2p
+        xpq = self.ap24 * t2
+        zpq = t0 - t1
+        z2p = xpq + z2p
+        xpq = t0 + t1
+        z2p = z2p * t2
+        zpq = zpq * zpq
+        xpq = xpq * xpq
+        zpq = D.X * zpq
+        xpq = D.Z * xpq
+        return [MontyPoint(x2p, z2p, self), MontyPoint(xpq, zpq, self)]
 
-def get_a(P, Q, D):
-    pass
+    def ladder3pt(self, m, xP, xQ, xD):
+        p0 = MontyPoint(xP, GFp2element(1, 0, 16), self)
+        p1 = MontyPoint(xQ, GFp2element(1, 0, 16), self)
+        p2 = MontyPoint(xD, GFp2element(1, 0, 16), self)
+        self.ap24 = (self.A + 2) / 4
+        while m > 0  :
+            if m % 2 == 1:
+                [p0, p1] = self.xdbladd(p0, p1, p2)
+            else:
+                [p0, p2] = self.xdbladd(p0, p2, p1)
+            m = m // 2
+        return p1
+
+
+
 
 class MontyPoint:
     X = GFp2element(0, 0, 0)
@@ -129,31 +164,14 @@ class MontyPoint:
             res = res.mul3()
         return res
 
-    def xdbladd(self, P, Q, D):
-        assert(P.parent == Q.parent == D.parent)
-        t0 = P.X + P.Z
-        t1 = P.X - P.Z
-        x2p = t0 * t0
-        t2 = Q.X - Q.Z
-        xpq = Q.X + Q.Z
-        t0 = t0 * t2
-        z2p = t1 * t1
-        t1 = t1 * xpq
-        t2 = x2p - z2p
-        x2p = x2p * z2p
-        xpq = self.parent.ap24 * t2
-        zpq = t0 - t1
-        z2p = xpq + z2p
-        xpq = t0 + t1
-        z2p = z2p * t2
-        zpq = zpq * zpq
-        xpq = xpq * xpq
-        zpq = D.X * zpq
-        xpq = D.Z * xpq
-        return [MontyPoint(x2p, z2p, P.parent), MontyPoint(xpq, zpq, P.parent)]
+    def ladder3pt(self, m, P, Q, D):
+        p0 = MontyPoint()
 
-    def ladder(self, other, e):
-        pass
+
+
+    def get_A(self, P, Q, D):
+        assert (P.parent == Q.parent == D.parent)
+        return A
 
     def diffadd(self, other, diff):
         pass

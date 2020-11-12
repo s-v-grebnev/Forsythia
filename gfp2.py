@@ -44,7 +44,10 @@ class GFp2element:
 
     def __truediv__(self, other):
 #        assert(p == other.p)
-        j = modinv(other)
+        if isinstance(other, int):
+            j = modinv(other, p)
+        else:
+            j = other.modinv()
         return self * j
 
     def __eq__(self, other):
