@@ -186,6 +186,23 @@ class MontyCurve:
         curve = MontyCurve(A, C)
         return [curve, K1, K2]
 
+    def iso3_eval(self, K1, K2, Q, image):
+        t0 = Q.X + Q.Z
+        t1 = Q.X - Q.Z
+        t0 = K1 * t0
+        t1 = K2 * t1
+        t2 = t0 + t1
+        t0 = t1 - t0
+        t2 = t2 * t2
+        t0 = t0 * t0
+        XPQ = Q.X * t2
+        ZPQ = Q.Z * t0
+        return MontyPoint(XPQ, ZPQ, image)
+
+    def iso2e(self, e2 ):
+        pass
+
+
 class MontyPoint:
     X = GFp2element(0, 0, 0)
     #    Y = GFp2element(0, 0, 0)
