@@ -7,22 +7,22 @@ from gfp2 import p
 
 class MontyCurve:
     A = None  # GFp2element(0, 0, 0, 16)
-    B = None  # GFp2element(0, 0, 0, 16)
+#    B = None  # GFp2element(0, 0, 0, 16)
     C = None  # GFp2element(0, 0, 0, 16)
     Ap24 = None
     Am24 = None
     C24 = None
     ap24 = None
 
-    def __init__(self, A, B, C):
+    def __init__(self, A, C): #, Ap24 = None, Am24 = None, C24 = None, ap24 = None
         if isinstance(A, GFp2element):
             self.A = A
         else:
             self.A = GFp2element(A, 0, 16)
-        if isinstance(B, GFp2element):
-            self.B = B
-        else:
-            self.B = GFp2element(B, 0, 16)
+#        if isinstance(B, GFp2element):
+#           self.B = B
+#        else:
+#            self.B = GFp2element(B, 0, 16)
         if isinstance(C, GFp2element):
             self.C = C
         else:
@@ -90,8 +90,101 @@ class MontyCurve:
             m = m // 2
         return p1
 
+    def geta(self, p, q, d):
+        t1 = p.X + q.X
+        t0 = p.X * q.X
+        A = d.X * t1
+        A = A + t0
+        t0 = t0 * d.X
+        A = A - 1
+        t0 = t0 + t0
+        t1 = t1 + d.X
+        t0 = t0 + t0
+        A = A * A
+        t0 = t0.modinv()
+        A = A * t0
+        A = A - t1
+        self.A = A
+        self.C = GFp2element(1, 0, 16)
+        self.Ap24 = self.A + self.C * 2
+        self.Am24 = self.A - self.C * 2
+        self.C24 = self.C * 4
+        self.ap24 = self.Ap24 / self.C
 
+    def iso2_curve(self, P2):
+        Ap24 = P2.X * P2.X
+        C24 = P2.Z * P2.Z
+        Ap24 = C24 - Ap24
+        A = Ap24 * 4 - C24 * 2
+        return MontyCurve(A, C24)
 
+    def iso2_eval(self, P2, Q, image):
+        t0 = P2.X + P2.Z
+        t1 = P2.X - P2.Z
+        t2 = Q.X + Q.Z
+        t3 = Q.X - Q.Z
+        t0 = t0 * t3
+        t1 = t1 * t2
+        t2 = t0 + t1
+        t3 = t0 - t1
+        XQP = Q.X * t2
+        ZQP = Q.Z * t3
+        return MontyPoint(XQP, ZQP, image)
+
+    def iso4_curve(self, P4):
+        K2 = P4.X - P4.Z
+        K3 = P4.X + P4.Z
+        K1 = P4.Z * P4.Z
+        K1 = K1 + K1
+        C24 = K1 * K1
+        K1 = K1 + K1
+        Ap24 = P4.X * P4.X
+        Ap24 = Ap24 + Ap24
+        Ap24 = Ap24 * Ap24
+        A = Ap24 * 4 - C24 * 2
+        curve = MontyCurve(A, C24)
+        return [curve, K1, K2, K3]
+
+    def iso4_eval(self, K1, K2, K3, Q, image):
+        t0 = Q.X + Q.Z
+        t1 = Q.X - Q.Z
+        XPQ = t0 * K2
+        ZPQ = t1 * K3
+        t0 = t0 * t1
+        t0 = t0 * K1
+        t1 = XPQ + ZPQ
+        ZPQ = XPQ-ZPQ
+        t1 = t1 * t1
+        ZPQ = ZPQ * ZPQ
+        XPQ = t0 + t1
+        t0 = ZPQ - t1
+        XPQ = XPQ * t1
+        ZPQ = ZPQ * t0
+        return MontyPoint(XPQ, ZPQ, image)
+
+    def iso3_curve(self, P3):
+        K1 = P3.X - P3.Z
+        t0 = K1 * K1
+        K2 = P3.X + P3.Z
+        t1 = K2 * K2
+        t2 = t0 + t1
+        t3 = K1 + K2
+        t3 = t3 * t3
+        t3 = t3 - t2
+        t2 = t1 + t3
+        t3 = t3 + t0
+        t4 = t3 + t0
+        t4 = t4 + t4
+        t4 = t1 + t4
+        Am24 = t2 * t4
+        t4 = t1 + t2
+        t4 = t4 + t4
+        t4 = t0 + t4
+        Ap24 = t3 * t4
+        A = Ap24 * 2 + Am24 * 2
+        C = Ap24 - Am24
+        curve = MontyCurve(A, C)
+        return [curve, K1, K2]
 
 class MontyPoint:
     X = GFp2element(0, 0, 0)
