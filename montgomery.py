@@ -199,8 +199,42 @@ class MontyCurve:
         ZPQ = Q.Z * t0
         return MontyPoint(XPQ, ZPQ, image)
 
-    def iso2e(self, e2 ):
-        pass
+    def iso2e(self, e2, S1,  X11 = None, X22 = None, X33 = None):
+        S = S1
+        X1 = X11
+        X2 = X22
+        X3 = X33
+        for e in range(e2-2, -2, -2):
+            T = S.mul2e(e)
+            [curve, K1, K2, K3] = self.iso4_curve(T)
+            if not e == 0:
+                S = self.iso4_eval(K1, K2, K3, S, curve)
+            if not X1 == None:
+                X1 = self.iso4_eval(K1, K2, K3, X1, curve)
+            if not X2 == None:
+                X2 = self.iso4_eval(K1, K2, K3, X2, curve)
+            if not X3 == None:
+                X3 = self.iso4_eval(K1, K2, K3, X3, curve)
+        return [curve, X1, X2, X3]
+
+    def iso3e(self, e3, S1,  X11 = None, X22 = None, X33 = None):
+        S = S1
+        X1 = X11
+        X2 = X22
+        X3 = X33
+        for e in range(e-1, -1, -1):
+            T = S.mul3e(e)
+            [curve, K1, K2] = self.iso3_curve(T)
+            if not e == 0:
+                S = self.iso3_eval(K1, K2, S, curve)
+            if not X1 == None:
+                X1 = self.iso3_eval(K1, K2, X1, curve)
+            if not X2 == None:
+                X2 = self.iso3_eval(K1, K2, X2, curve)
+            if not X3 == None:
+                X3 = self.iso3_eval(K1, K2, X3, curve)
+        return [curve, X1, X2, X3]
+
 
 
 class MontyPoint:
@@ -276,12 +310,6 @@ class MontyPoint:
 
     def ladder3pt(self, m, P, Q, D):
         p0 = MontyPoint()
-
-
-
-    def get_A(self, P, Q, D):
-        assert (P.parent == Q.parent == D.parent)
-        return A
 
     def diffadd(self, other, diff):
         pass
