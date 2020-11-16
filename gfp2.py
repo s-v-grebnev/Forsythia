@@ -1,10 +1,11 @@
 """
 Class GFp2element: represents GF(p^2)
+(c) 2020 Sergey Grebnev, s.v.grebnev@yandex.ru
 """
 
 from ecver.gcd import modinv
 
-p = 0
+p = 241
 
 class GFp2element:
     a = 0
@@ -44,6 +45,14 @@ class GFp2element:
 
     def __truediv__(self, other):
 #        assert(p == other.p)
+        if isinstance(other, int):
+            j = modinv(other, p)
+        else:
+            j = other.modinv()
+        return self * j
+
+    def __floordiv__(self, other):
+        #        assert(p == other.p)
         if isinstance(other, int):
             j = modinv(other, p)
         else:
