@@ -5,43 +5,43 @@ Class GFp2element: represents GF(p^2)
 
 from ecver.gcd import modinv
 
-p = 241
+p = 431
 
 class GFp2element:
     a = 0
     b = 0
 
-    def __init__(self, a=0, b=0,  bs=16):
-        if isinstance(a, int):
-            self.a = a
-        else:
-            self.a = int(a, bs)
-        if isinstance(b, int):
-            self.b = b
-        else:
-            self.b = int(b, bs)
+    def __init__(self, a=0, b=0):
+        assert(isinstance(a, int))
+        assert(isinstance(b, int))
+        self.a = a
+        self.b = b
 
     def __str__(self):
         return str(self.a) + ' + ' + str(self.b) + " * i"
 
+    def __repr__(self):
+        return str(self.a) + ' + ' + str(self.b) + " * i"
+
     def __add__(self, other):
 #        assert(p == other.p)
-        return GFp2element((self.a + other.a) % p, (self.b + other.b) % p,  16)
+        if isinstance(other, int):
+            return GFp2element(self.a + other, self.b)
+        return GFp2element((self.a + other.a) % p, (self.b + other.b) % p)
 
     def __sub__(self, other):
 #        assert(p == other.p)
-        return GFp2element((self.a - other.a) % p, (self.b - other.b) % p,  16)
+        return GFp2element((self.a - other.a) % p, (self.b - other.b) % p)
 
     def __mul__(self, other):
         if isinstance(other, int):
-            return GFp2element((self.a * other) % p, (self.b * other) % p,  16)
-        assert(p == other.p)
+            return GFp2element((self.a * other) % p, (self.b * other) % p)
         return GFp2element((self.a * other.a - self.b * other.b) % p,
-                           (self.a * other.b + self.b * other.a) % p,  16)
+                           (self.a * other.b + self.b * other.a) % p)
 
     def modinv(self):
         j = modinv((self.a * self.a + self.b * self.b) % p, p)
-        return GFp2element((self.a * j) % p, (-self.b * j) % p,  16)
+        return GFp2element((self.a * j) % p, (-self.b * j) % p)
 
     def __truediv__(self, other):
 #        assert(p == other.p)
