@@ -205,37 +205,37 @@ class MontgomeryCurve:
         :param image:
         :return:
         """
-        QX = Q.X
-        QZ = Q.Z
-        t0 = QX + QZ
-        t1 = QX - QZ
-        QX = t0 * K2
-        QZ = t1 * K3
-        t0 = t0 * t1
-        t0 = t0 * K1
-        t1 = QX + QZ
-        QZ = QX-QZ
-        t1 = t1 * t1
-        QZ = QZ * QZ
-        QX = t0 + t1
-        t0 = QZ - t1
-        XPQ = QX * t1
-        ZPQ = QZ * t0
-
-        # t0 = Q.X + Q.Z
-        # t1 = Q.X - Q.Z
-        # XPQ = t0 * K2
-        # ZPQ = t1 * K3
+        # QX = Q.X
+        # QZ = Q.Z
+        # t0 = QX + QZ
+        # t1 = QX - QZ
+        # QX = t0 * K2
+        # QZ = t1 * K3
         # t0 = t0 * t1
         # t0 = t0 * K1
-        # t1 = XPQ + ZPQ
-        # ZPQ = XPQ-ZPQ
+        # t1 = QX + QZ
+        # QZ = QX-QZ
         # t1 = t1 * t1
-        # ZPQ = ZPQ * ZPQ
-        # XPQ = t0 + t1
-        # t0 = ZPQ - t1
-        # XPQ = XPQ * t1
-        # ZPQ = ZPQ * t0
+        # QZ = QZ * QZ
+        # QX = t0 + t1
+        # t0 = QZ - t1
+        # XPQ = QX * t1
+        # ZPQ = QZ * t0
+
+        t0 = Q.X + Q.Z
+        t1 = Q.X - Q.Z
+        XPQ = t0 * K2
+        ZPQ = t1 * K3
+        t0 = t0 * t1
+        t0 = t0 * K1
+        t1 = XPQ + ZPQ
+        ZPQ = XPQ-ZPQ
+        t1 = t1 * t1
+        ZPQ = ZPQ * ZPQ
+        XPQ = t0 + t1
+        t0 = ZPQ - t1
+        XPQ = XPQ * t1
+        ZPQ = ZPQ * t0
 
         return MontgomeryPoint(XPQ, ZPQ, image)
 
@@ -315,17 +315,17 @@ class MontgomeryCurve:
         else:
             X3 = None
         curve = None
-        for e in range(e2-2, 0, -2):   #Check ranges!
+        for e in range(e2-1, -1, -1):   #Check ranges!
             T = S.mul2e(e)
-            [curve, K1, K2, K3] = self.iso4_curve(T)
+            curve = self.iso2_curve(T)
             if not e == 0:
-                S = self.iso4_eval(K1, K2, K3, S, curve)
+                S = self.iso2_eval(T, S, curve)
             if not X1 is None:
-                X1 = self.iso4_eval(K1, K2, K3, X1, curve)
+                X1 = self.iso2_eval(T, X1, curve)
             if not X2 is None:
-                X2 = self.iso4_eval(K1, K2, K3, X2, curve)
+                X2 = self.iso2_eval(T, X2,  curve)
             if not X3 is None:
-                X3 = self.iso4_eval(K1, K2, K3, X3, curve)
+                X3 = self.iso2_eval(T, X3, curve)
         return [curve, X1, X2, X3]
 
     def iso3e(self, e3, S1,  X11 = None, X22 = None, X33 = None):
