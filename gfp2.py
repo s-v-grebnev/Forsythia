@@ -70,6 +70,5 @@ class GFp2element:
     def __ne__(self, other):
         return not (self == other)
 
-def __init__():
-    global p
-    p = 241
+    def iszero(self):
+        return self.a == self.b == 0

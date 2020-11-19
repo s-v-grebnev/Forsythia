@@ -6,7 +6,7 @@ Classes for working with Montgomery curves and isogenies
 from gfp2 import GFp2element
 #from gfp2 import p
 
-class MontyCurve:
+class MontgomeryCurve:
     A = None  # GFp2element(0, 0, 0, 16)
 #    B = None  # GFp2element(0, 0, 0, 16)
     C = None  # GFp2element(0, 0, 0, 16)
@@ -15,15 +15,11 @@ class MontyCurve:
     C24 = None
     ap24 = None
 
-    def __init__(self, A, C=1): #, Ap24 = None, Am24 = None, C24 = None, ap24 = None
+    def __init__(self, A=1, C=1): #, Ap24 = None, Am24 = None, C24 = None, ap24 = None
         if isinstance(A, GFp2element):
             self.A = A
         else:
             self.A = GFp2element(A, 0)
-#        if isinstance(B, GFp2element):
-#           self.B = B
-#        else:
-#            self.B = GFp2element(B, 0, 16)
         if isinstance(C, GFp2element):
             self.C = C
         else:
@@ -41,6 +37,11 @@ class MontyCurve:
 
 
     def jinv(self):
+        """
+        Get a Montgomery curve's j-invariant
+        Alg. 9 from [SIKE]
+        :return: j-invariant of the curve (GFp2element)
+        """
         j = self.A * self.A
         t1 = self.C * self.C
         t0 = t1 + t1
@@ -60,6 +61,13 @@ class MontyCurve:
         return j
 
     def xdbladd(self, P, Q, D):
+        """
+        Double-and-Add, Alg. 5 in [SIKE]
+        :param P:
+        :param Q:
+        :param D:
+        :return:
+        """
 #        assert(P.parent == Q.parent == D.parent == self)
         t0 = P.X + P.Z
         t1 = P.X - P.Z
@@ -80,12 +88,21 @@ class MontyCurve:
         xpq = xpq * xpq
         zpq = D.X * zpq
         xpq = D.Z * xpq
-        return [MontyPoint(x2p, z2p, self), MontyPoint(xpq, zpq, self)]
+        return [MontgomeryPoint(x2p, z2p, self), MontgomeryPoint(xpq, zpq, self)]
 
     def ladder3pt(self, m, xP, xQ, xD):
-        p0 = MontyPoint(xQ, GFp2element(1), self)
-        p1 = MontyPoint(xP, GFp2element(1), self)
-        p2 = MontyPoint(xD, GFp2element(1), self)
+        """
+        Montgomery ladder. Calculates x(P+[m]Q) given P, Q, D=P-Q
+        Alg. 9 in [SIKE]
+        :param m:
+        :param xP:
+        :param xQ:
+        :param xD:
+        :return:
+        """
+        p0 = MontgomeryPoint(xQ, GFp2element(1), self)
+        p1 = MontgomeryPoint(xP, GFp2element(1), self)
+        p2 = MontgomeryPoint(xD, GFp2element(1), self)
         self.ap24 = (self.A + 2) // 4
         while m > 0:
             if m % 2 == 1:
@@ -95,7 +112,15 @@ class MontyCurve:
             m = m // 2
         return p1
 
-    def geta(self, p, q, d):
+    def seta(self, p, q, d):
+        """
+        Recover Montgomery curve coefficient A as well as aux curve constants from P, Q, P-Q x-coordinates
+        Alg. 10 in [SIKE]
+        :param p:
+        :param q:
+        :param d:
+        :return: None
+        """
         t1 = p + q
         t0 = p * q
         A = d * t1
@@ -117,13 +142,27 @@ class MontyCurve:
         self.ap24 = self.Ap24 // self.C
 
     def iso2_curve(self, P2):
+        """
+        Calculate 2-isogenous curve
+        Alg. 11 from [SIKE]
+        :param P2:
+        :return:
+        """
         Ap24 = P2.X * P2.X
         C24 = P2.Z * P2.Z
         Ap24 = C24 - Ap24
         A = Ap24 * 4 - C24 * 2
-        return MontyCurve(A, C24)
+        return MontgomeryCurve(A, C24)
 
     def iso2_eval(self, P2, Q, image):
+        """
+        Evaluate a 2-isogeny on a point
+        Alg. 12 from [SIKE]
+        :param P2:
+        :param Q:
+        :param image: Montgomery curve returned by iso2_curve
+        :return:
+        """
         t0 = P2.X + P2.Z
         t1 = P2.X - P2.Z
         t2 = Q.X + Q.Z
@@ -134,9 +173,15 @@ class MontyCurve:
         t3 = t0 - t1
         XQP = Q.X * t2
         ZQP = Q.Z * t3
-        return MontyPoint(XQP, ZQP, image)
+        return MontgomeryPoint(XQP, ZQP, image)
 
     def iso4_curve(self, P4):
+        """
+        Calculate 4-isogenous curve
+        Alg. 13 from [SIKE]
+        :param P4:
+        :return:
+        """
         K2 = P4.X - P4.Z
         K3 = P4.X + P4.Z
         K1 = P4.Z * P4.Z
@@ -147,10 +192,19 @@ class MontyCurve:
         Ap24 = Ap24 + Ap24
         Ap24 = Ap24 * Ap24
         A = Ap24 * 4 - C24 * 2
-        curve = MontyCurve(A, C24)
+        curve = MontgomeryCurve(A, C24)
         return [curve, K1, K2, K3]
 
     def iso4_eval(self, K1, K2, K3, Q, image):
+        """
+        Alg. 14 from [SIKE]
+        :param K1:
+        :param K2:
+        :param K3:
+        :param Q:
+        :param image:
+        :return:
+        """
         t0 = Q.X + Q.Z
         t1 = Q.X - Q.Z
         XPQ = t0 * K2
@@ -165,9 +219,15 @@ class MontyCurve:
         t0 = ZPQ - t1
         XPQ = XPQ * t1
         ZPQ = ZPQ * t0
-        return MontyPoint(XPQ, ZPQ, image)
+        return MontgomeryPoint(XPQ, ZPQ, image)
 
     def iso3_curve(self, P3):
+        """
+        Calculate 2-isogenous curve and parameters K1, K2
+        Alg. 15 from [SIKE]
+        :param P3:
+        :return:
+        """
         K1 = P3.X - P3.Z
         t0 = K1 * K1
         K2 = P3.X + P3.Z
@@ -189,10 +249,18 @@ class MontyCurve:
         A = Ap24 * 2 + Am24 * 2
         C = Ap24 - Am24
 #        print(A, C)
-        curve = MontyCurve(A, C)
+        curve = MontgomeryCurve(A, C)
         return [curve, K1, K2]
 
     def iso3_eval(self, K1, K2, Q, image):
+        """
+        Alg. 16 from [SIKE]
+        :param K1:
+        :param K2:
+        :param Q:
+        :param image:
+        :return:
+        """
         t0 = Q.X + Q.Z
         t1 = Q.X - Q.Z
         t0 = K1 * t0
@@ -203,20 +271,30 @@ class MontyCurve:
         t0 = t0 * t0
         XPQ = Q.X * t2
         ZPQ = Q.Z * t0
-        return MontyPoint(XPQ, ZPQ, image)
+        return MontgomeryPoint(XPQ, ZPQ, image)
 
     def iso2e(self, e2, S1,  X11 = None, X22 = None, X33 = None):
+        """
+        Compute and optionally evaluate a 2^e2-isogeny
+        Alg. 17 from [SIKE]
+        :param e2:
+        :param S1:
+        :param X11:
+        :param X22:
+        :param X33:
+        :return:
+        """
         S = S1
         if not X11 is None:
-            X1 = MontyPoint(X11, GFp2element(1), self)
+            X1 = MontgomeryPoint(X11, GFp2element(1), self)
         else:
             X1 = None
         if not X22 is None:
-            X2 = MontyPoint(X22, GFp2element(1), self)
+            X2 = MontgomeryPoint(X22, GFp2element(1), self)
         else:
             X2 = None
         if not X33 is None:
-            X3 = MontyPoint(X33, GFp2element(1), self)
+            X3 = MontgomeryPoint(X33, GFp2element(1), self)
         else:
             X3 = None
         curve = None
@@ -234,21 +312,29 @@ class MontyCurve:
         return [curve, X1, X2, X3]
 
     def iso3e(self, e3, S1,  X11 = None, X22 = None, X33 = None):
+        """
+        Compute and optionally evaluate a 3^e-isogeny
+        Alg. 18 from [SIKE]
+        :param e3: 
+        :param S1: 
+        :param X11: 
+        :param X22: 
+        :param X33: 
+        :return: 
+        """
         S = S1
         if not X11 is None:
-            X1 = MontyPoint(X11, GFp2element(1), self)
+            X1 = MontgomeryPoint(X11, GFp2element(1), self)
         else:
             X1 = None
-
         if not X22 is None:
-            X2 = MontyPoint(X22, GFp2element(1), self)
+            X2 = MontgomeryPoint(X22, GFp2element(1), self)
         else:
             X2 = None
         if not X33 is None:
-            X3 = MontyPoint(X33, GFp2element(1), self)
+            X3 = MontgomeryPoint(X33, GFp2element(1), self)
         else:
             X3 = None
-
         curve = None
         for e in range(e3-1, -1, -1):   #Check ranges!
             T = S.mul3e(e)
@@ -263,10 +349,9 @@ class MontyCurve:
                 X3 = self.iso3_eval(K1, K2, X3, curve)
         return [curve, X1, X2, X3]
 
-class MontyPoint:
+class MontgomeryPoint:
     X = GFp2element(0)
-    #    Y = GFp2element(0, 0, 0)
-    Z = GFp2element(0)
+    Z = GFp2element(1)
     parent = None
 
     def getx(self):
@@ -284,16 +369,21 @@ class MontyPoint:
             self.Z = GFp2element(1)
 
     def __str__(self):
-        return ('(' + str(self.X) + ':' + str(self.Z) + ')')
+        return ('(' + str(self.X) + ':' + str(self.Z) + '); x = ' + str(self.X // self.Z))
 
     def __repr__(self):
-        return ('(' + str(self.X) + ':' + str(self.Z) + ')')
+        return ('(' + str(self.X) + ':' + str(self.Z) + '); x = ' + str(self.X // self.Z))
 
 
     def __add__(self, other):
         pass
 
     def mul2(self):
+        """
+        Montgomery point x-only multiplication by 2
+        Alg. 3 from [SIKE]
+        :return:
+        """
         t0 = self.X - self.Z
         t1 = self.X + self.Z
         t0 = t0 * t0
@@ -304,9 +394,14 @@ class MontyPoint:
         t0 = t1 * self.parent.Ap24
         z = z + t0
         z = z * t1
-        return MontyPoint(x, z, self.parent)
+        return MontgomeryPoint(x, z, self.parent)
 
     def mul3(self):
+        """
+        Montgomery point x-only multiplication by 3
+        Alg. 6 from [SIKE]
+        :return:
+        """
         t0 = self.X - self.Z
         t2 = t0 * t0
         t1 = self.X + self.Z
@@ -329,58 +424,105 @@ class MontyPoint:
         t1 = t3 - t1
         t1 = t1 * t1
         z = t1 * t0
-        return MontyPoint(x, z, self.parent)
+        return MontgomeryPoint(x, z, self.parent)
 
     def mul2e(self, e):
-        res = MontyPoint(self.X, self.Z, self.parent)
+        """
+        e-repeated Montgomery point x-only multiplication by 2
+        Alg. 4 from [SIKE]
+        :return:
+        """
+        res = MontgomeryPoint(self.X, self.Z, self.parent)
         for i in range(0, e):
             res = res.mul2()
         return res
 
     def mul3e(self, e):
-        res = MontyPoint(self.X, self.Z, self.parent)
+        """
+        e-repeated Montgomery point x-only multiplication by 3
+        Alg. 7 from [SIKE]
+        :return:
+        """
+        res = MontgomeryPoint(self.X, self.Z, self.parent)
         for i in range(0, e):
             res = res.mul3()
         return res
 
-def isogen2(sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
-    e0 = MontyCurve(GFp2element(104), GFp2element(1))
-        #FIXME
-#    x1 = MontyPoint(xp3, GFp2element(1), e0)
-#    x2 = MontyPoint(xq3, GFp2element(1), e0)
-#    x3 = MontyPoint(xr3, GFp2element(1), e0)
+def isogen2(e0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
+    """
+    Generate public key in 2^e-torsion
+    Alg. 21 from [SIKE]
+    :param sk2:
+    :param e2:
+    :param xp2:
+    :param xq2:
+    :param xr2:
+    :param xp3:
+    :param xq3:
+    :param xr3:
+    :return:
+    """
+ #   e0 = MontgomeryCurve(GFp2element(104), GFp2element(1))
     s = e0.ladder3pt(sk2, xp2, xq2, xr2)
-    [eA, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
+    print('Alices secret generator:', s)
+    [curve, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
+    print('Alices public curve', curve)
     return [x1.getx(), x2.getx(), x3.getx()]
 
-def isogen3(sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
-    e0 = MontyCurve(GFp2element(104), GFp2element(1))
-        #FIXME
-    #x1 = MontyPoint(xp2, GFp2element(1), e0)
-    #x2 = MontyPoint(xq2, GFp2element(1), e0)
-    #x3 = MontyPoint(xr2, GFp2element(1), e0)
+def isogen3(e0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
+    """
+    Generate public key in 3^e3-torsion
+    Alg. 22 from [SIKE]
+    :param sk3:
+    :param e3:
+    :param xp2:
+    :param xq2:
+    :param xr2:
+    :param xp3:
+    :param xq3:
+    :param xr3:
+    :return:
+    """
+#    e0 = MontgomeryCurve(GFp2element(104), GFp2element(1))
     s = e0.ladder3pt(sk3, xp3, xq3, xr3)
+    print('Bobs secret generator:', s)
     [eA, x1, x2, x3] = e0.iso3e(e3, s, xp2, xq2, xr2)
     return [x1.getx(), x2.getx(), x3.getx()]
 
 def isoex2(sk2, e2, pk):
-    curve = MontyCurve(GFp2element(1))
+    """
+    Generate shared key in 2^e2-torsion
+    Alg. 23 from [SIKE]
+    :param sk2:
+    :param e2:
+    :param pk:
+    :return:
+    """
+    curve = MontgomeryCurve(GFp2element(1))
     x1 = pk[0]
     x2 = pk[1]
     x3 = pk[2]
-    curve.geta(x1, x2, x3)
+    curve.seta(x1, x2, x3)
     s = curve.ladder3pt(sk2, x1, x2, x3)
     [image, _, _, _] = curve.iso2e(e2, s)
-    print('CurveAlice,', image)
+#    print('CurveAlice,', image)
     return image.jinv()
 
 def isoex3(sk3, e3, pk):
-    curve = MontyCurve(GFp2element(1))
+    """
+    Generate shared key in 3^e3-torsion
+    Alg. 24 from [SIKE]
+    :param sk3:
+    :param e3:
+    :param pk:
+    :return:
+    """
+    curve = MontgomeryCurve(GFp2element(1))
     x1 = pk[0]
     x2 = pk[1]
     x3 = pk[2]
-    curve.geta(x1, x2, x3)
+    curve.seta(x1, x2, x3)
     s = curve.ladder3pt(sk3, x1, x2, x3)
     [image, _, _, _] = curve.iso3e(e3, s)
-    print('CurveBob,', image)
+ #   print('CurveBob,', image)
     return image.jinv()

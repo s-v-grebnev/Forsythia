@@ -1,4 +1,6 @@
-""" GCD, Extended GCD and Modular inversion implementation
+"""
+GCD, Extended GCD and Modular inversion implementation
+(c) 2018 Sergey Grebnev, s.v.grebnev@yandex.ru
 """
 
 def gcd(a,b):
