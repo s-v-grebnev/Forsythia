@@ -5,9 +5,9 @@
 
 from gfp2 import p, GFp2element
 from montgomery import MontgomeryCurve
-from montgomery import MontgomeryPoint
-from montgomery import isogen2,isogen3,isoex2,isoex3
+from montgomery import isogen2, isogen3, isoex2, isoex3
 from parameters import toy_example, costello
+import time
 
 e2 = 0
 e3 = 0
@@ -35,7 +35,7 @@ def ParseParameters(params):
     xq2 = GFp2element(params['xq2'][0], params['xq2'][1]) // GFp2element(params['zq2'][0], params['zq2'][1])
     yp2 = GFp2element(params['yp2'][0], params['yp2'][1]) // GFp2element(params['zp2'][0], params['zp2'][1])
     yq2 = GFp2element(params['yq2'][0], params['yq2'][1]) // GFp2element(params['zq2'][0], params['zq2'][1])
-#    xr2 = GFp2element(params['xr2'][0], params['xr2'][1])
+
     l = (yp2 + yq2) // (xp2 - xq2)
     xr2 = l * l - (xp2 + xq2) - A
 
@@ -44,7 +44,7 @@ def ParseParameters(params):
     yp3 = GFp2element(params['yp3'][0], params['yp3'][1]) // GFp2element(params['zp3'][0], params['zp3'][1])
     yq3 = GFp2element(params['yq3'][0], params['yq3'][1]) // GFp2element(params['zq3'][0], params['zq3'][1])
 
-#    xr3 = GFp2element(params['xr3'][0], params['xr3'][1])
+
     l = (yp3 + yq3) // (xp3 - xq3)
     xr3 = l * l - (xp3 + xq3) - A
 
@@ -52,6 +52,7 @@ ParseParameters(costello)
 print("p =", p)
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
+start = time.time()
 sk2 = 11
 print('skAlice =', sk2)
 pkAlice = isogen2(E0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3)
@@ -75,4 +76,6 @@ j2 = isoex3(sk3, e3, pkAlice)
 print('jAlice = ', j1)
 print('jBob = ', j2)
 
+end = time.time()
+print('Time elapsed:', end - start, 's')
 # print(GFp2element(79, 271) // GFp2element(430, 153))

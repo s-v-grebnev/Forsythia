@@ -92,7 +92,7 @@ class MontgomeryCurve:
 
     def ladder3pt(self, m, xP, xQ, xD):
         """
-        Montgomery ladder. Calculates x(P+[m]Q) given P, Q, D=P-Q
+        Montgomery's ladder. Calculates x(P+[m]Q) given m and x-coordinates of P, Q, D=Q-P
         Alg. 9 in [SIKE]
         :param m:
         :param xP:
