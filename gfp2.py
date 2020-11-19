@@ -31,6 +31,8 @@ class GFp2element:
 
     def __sub__(self, other):
 #        assert(p == other.p)
+        if isinstance(other, int):
+            return GFp2element(self.a - other, self.b)
         return GFp2element((self.a - other.a) % p, (self.b - other.b) % p)
 
     def __mul__(self, other):

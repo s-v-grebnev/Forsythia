@@ -1,11 +1,13 @@
 #
-# (c) 2020 Sergey Grebnev
+# implementation of the Forsythia key exchange protocol
+# (c) 2020 Sergey Grebnev, s.v.grebnev@yandex.ru
 #
+
 from gfp2 import p, GFp2element
 from montgomery import MontyCurve
 from montgomery import MontyPoint
 from montgomery import isogen2,isogen3,isoex2,isoex3
-from parameters import toy_example
+from parameters import toy_example, costello
 
 e2 = 0
 e3 = 0
@@ -21,7 +23,7 @@ C = GFp2element(1)
 E0 = MontyCurve(A, C)
 
 def ParseParameters(params):
-    global p, e2, e3, f, xp2, xq2, xr2, xp3, xq3, xr3, A, C
+    global p, e2, e3, f, xp2, xq2, xr2, xp3, xq3, xr3, A, C, E0
     e2 = params['eA']
     e3 = params['eB']
     f = params['f']
@@ -46,19 +48,20 @@ def ParseParameters(params):
     l = (yp3 + yq3) // (xp3 - xq3)
     xr3 = l * l - (xp3 + xq3) - A
 
+
 global p
-print(p)
 
-ParseParameters(toy_example)
-print(p)
+ParseParameters(costello)
+print("p =", p)
+print('E0:', E0)
 
-sk2 = 123
-sk3 = 321
+sk2 = 11
+sk3 = 2
 
-pkAlice = isogen2(sk2, e2, xp3, xq3, xr3)
+pkAlice = isogen2(sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3)
 print('pkAlice = ', pkAlice)
 
-pkBob = isogen3(sk3, e3, xp2, xq2, xr2)
+pkBob = isogen3(sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3)
 print('pkBob = ', pkBob)
 
 j1 = isoex2(sk2, e2, pkBob)

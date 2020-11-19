@@ -1,5 +1,5 @@
 """
-Classes for working with Montgomery curves
+Classes for working with Montgomery curves and isogenies
 (c) 2020 Sergey Grebnev, s.v.grebnev@yandex.ru
 """
 
@@ -19,7 +19,7 @@ class MontyCurve:
         if isinstance(A, GFp2element):
             self.A = A
         else:
-            self.A = GFp2element(A, 0, 16)
+            self.A = GFp2element(A, 0)
 #        if isinstance(B, GFp2element):
 #           self.B = B
 #        else:
@@ -27,17 +27,17 @@ class MontyCurve:
         if isinstance(C, GFp2element):
             self.C = C
         else:
-            self.C = GFp2element(C, 1, 16)
+            self.C = GFp2element(C, 0)
         self.Ap24 = self.A + self.C * 2
         self.Am24 = self.A - self.C * 2
         self.C24 = self.C * 4
-        self.ap24 = self.Ap24 / self.C
+        self.ap24 = self.Ap24 // self.C
 
     def __str__(self):
-        return 'y^2 = ' + "x^3 + (" + str(self.A / self.C) + ") * x^2 + x"
+        return 'y^2 = ' + "x^3 + (" + str(self.A // self.C) + ") * x^2 + x"
 
     def __repr__(self):
-        return 'y^2 = ' + "x^3 + (" + str(self.A / self.C) + ") * x^2 + x"
+        return 'y^2 = ' + "x^3 + (" + str(self.A // self.C) + ") * x^2 + x"
 
 
     def jinv(self):
@@ -83,11 +83,11 @@ class MontyCurve:
         return [MontyPoint(x2p, z2p, self), MontyPoint(xpq, zpq, self)]
 
     def ladder3pt(self, m, xP, xQ, xD):
-        p0 = MontyPoint(xP, GFp2element(1), self)
-        p1 = MontyPoint(xQ, GFp2element(1), self)
+        p0 = MontyPoint(xQ, GFp2element(1), self)
+        p1 = MontyPoint(xP, GFp2element(1), self)
         p2 = MontyPoint(xD, GFp2element(1), self)
-        self.ap24 = (self.A + 2) / 4
-        while m > 0  :
+        self.ap24 = (self.A + 2) // 4
+        while m > 0:
             if m % 2 == 1:
                 [p0, p1] = self.xdbladd(p0, p1, p2)
             else:
@@ -96,21 +96,21 @@ class MontyCurve:
         return p1
 
     def geta(self, p, q, d):
-        t1 = p.X + q.X
-        t0 = p.X * q.X
-        A = d.X * t1
+        t1 = p + q
+        t0 = p * q
+        A = d * t1
         A = A + t0
-        t0 = t0 * d.X
+        t0 = t0 * d
         A = A - 1
         t0 = t0 + t0
-        t1 = t1 + d.X
+        t1 = t1 + d
         t0 = t0 + t0
         A = A * A
         t0 = t0.modinv()
         A = A * t0
         A = A - t1
         self.A = A
-        self.C = GFp2element(1, 0, 16)
+        self.C = GFp2element(1)
         self.Ap24 = self.A + self.C * 2
         self.Am24 = self.A - self.C * 2
         self.C24 = self.C * 4
@@ -188,6 +188,7 @@ class MontyCurve:
         Ap24 = t3 * t4
         A = Ap24 * 2 + Am24 * 2
         C = Ap24 - Am24
+#        print(A, C)
         curve = MontyCurve(A, C)
         return [curve, K1, K2]
 
@@ -210,7 +211,6 @@ class MontyCurve:
             X1 = MontyPoint(X11, GFp2element(1), self)
         else:
             X1 = None
-
         if not X22 is None:
             X2 = MontyPoint(X22, GFp2element(1), self)
         else:
@@ -333,61 +333,54 @@ class MontyPoint:
 
     def mul2e(self, e):
         res = MontyPoint(self.X, self.Z, self.parent)
-        for i in range(1, e):
+        for i in range(0, e):
             res = res.mul2()
         return res
 
     def mul3e(self, e):
         res = MontyPoint(self.X, self.Z, self.parent)
-        for i in range(1, e):
+        for i in range(0, e):
             res = res.mul3()
         return res
 
-    def diffadd(self, other, diff):
-        pass
-
-    def scalar(self, k):
-        pass
-
-    def __mul__(self, other):
-        return self.scalar(other)
-
-def isogen2(sk2, e2, xp3, xq3, xr3):
+def isogen2(sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
     e0 = MontyCurve(GFp2element(104), GFp2element(1))
         #FIXME
-    #x1 = MontyPoint(xp3, GFp2element(1), e0)
-    #x2 = MontyPoint(xq3, GFp2element(1), e0)
-    #x3 = MontyPoint(xr3, GFp2element(1), e0)
-    s = e0.ladder3pt(sk2, xp3, xq3, xr3)
+#    x1 = MontyPoint(xp3, GFp2element(1), e0)
+#    x2 = MontyPoint(xq3, GFp2element(1), e0)
+#    x3 = MontyPoint(xr3, GFp2element(1), e0)
+    s = e0.ladder3pt(sk2, xp2, xq2, xr2)
     [eA, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
     return [x1.getx(), x2.getx(), x3.getx()]
 
-def isogen3(sk3, e3, xp2, xq2, xr2):
+def isogen3(sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
     e0 = MontyCurve(GFp2element(104), GFp2element(1))
         #FIXME
     #x1 = MontyPoint(xp2, GFp2element(1), e0)
     #x2 = MontyPoint(xq2, GFp2element(1), e0)
     #x3 = MontyPoint(xr2, GFp2element(1), e0)
-    s = e0.ladder3pt(sk3, xp2, xq2, xr2)
+    s = e0.ladder3pt(sk3, xp3, xq3, xr3)
     [eA, x1, x2, x3] = e0.iso3e(e3, s, xp2, xq2, xr2)
     return [x1.getx(), x2.getx(), x3.getx()]
 
 def isoex2(sk2, e2, pk):
-    curve = MontyCurve()
+    curve = MontyCurve(GFp2element(1))
     x1 = pk[0]
     x2 = pk[1]
     x3 = pk[2]
     curve.geta(x1, x2, x3)
     s = curve.ladder3pt(sk2, x1, x2, x3)
-    image = curve.iso2e(e2, s)
+    [image, _, _, _] = curve.iso2e(e2, s)
+    print('CurveAlice,', image)
     return image.jinv()
 
 def isoex3(sk3, e3, pk):
-    curve = MontyCurve()
+    curve = MontyCurve(GFp2element(1))
     x1 = pk[0]
     x2 = pk[1]
     x3 = pk[2]
     curve.geta(x1, x2, x3)
     s = curve.ladder3pt(sk3, x1, x2, x3)
-    image = curve.iso2e(e3, s)
+    [image, _, _, _] = curve.iso3e(e3, s)
+    print('CurveBob,', image)
     return image.jinv()
