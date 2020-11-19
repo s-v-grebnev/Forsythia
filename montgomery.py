@@ -205,20 +205,38 @@ class MontgomeryCurve:
         :param image:
         :return:
         """
-        t0 = Q.X + Q.Z
-        t1 = Q.X - Q.Z
-        XPQ = t0 * K2
-        ZPQ = t1 * K3
+        QX = Q.X
+        QZ = Q.Z
+        t0 = QX + QZ
+        t1 = QX - QZ
+        QX = t0 * K2
+        QZ = t1 * K3
         t0 = t0 * t1
         t0 = t0 * K1
-        t1 = XPQ + ZPQ
-        ZPQ = XPQ-ZPQ
+        t1 = QX + QZ
+        QZ = QX-QZ
         t1 = t1 * t1
-        ZPQ = ZPQ * ZPQ
-        XPQ = t0 + t1
-        t0 = ZPQ - t1
-        XPQ = XPQ * t1
-        ZPQ = ZPQ * t0
+        QZ = QZ * QZ
+        QX = t0 + t1
+        t0 = QZ - t1
+        XPQ = QX * t1
+        ZPQ = QZ * t0
+
+        # t0 = Q.X + Q.Z
+        # t1 = Q.X - Q.Z
+        # XPQ = t0 * K2
+        # ZPQ = t1 * K3
+        # t0 = t0 * t1
+        # t0 = t0 * K1
+        # t1 = XPQ + ZPQ
+        # ZPQ = XPQ-ZPQ
+        # t1 = t1 * t1
+        # ZPQ = ZPQ * ZPQ
+        # XPQ = t0 + t1
+        # t0 = ZPQ - t1
+        # XPQ = XPQ * t1
+        # ZPQ = ZPQ * t0
+
         return MontgomeryPoint(XPQ, ZPQ, image)
 
     def iso3_curve(self, P3):
@@ -248,7 +266,6 @@ class MontgomeryCurve:
         Ap24 = t3 * t4
         A = Ap24 * 2 + Am24 * 2
         C = Ap24 - Am24
-#        print(A, C)
         curve = MontgomeryCurve(A, C)
         return [curve, K1, K2]
 
@@ -298,7 +315,7 @@ class MontgomeryCurve:
         else:
             X3 = None
         curve = None
-        for e in range(e2-2, -2, -2):   #Check ranges!
+        for e in range(e2-2, 0, -2):   #Check ranges!
             T = S.mul2e(e)
             [curve, K1, K2, K3] = self.iso4_curve(T)
             if not e == 0:
@@ -464,7 +481,7 @@ def isogen2(e0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
     """
  #   e0 = MontgomeryCurve(GFp2element(104), GFp2element(1))
     s = e0.ladder3pt(sk2, xp2, xq2, xr2)
-    print('Alices secret generator:', s)
+#    print('Alices secret generator:', s)
     [curve, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
     print('Alices public curve', curve)
     return [x1.getx(), x2.getx(), x3.getx()]
