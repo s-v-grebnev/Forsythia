@@ -503,7 +503,7 @@ def isogen3(e0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
     """
 #    e0 = MontgomeryCurve(GFp2element(104), GFp2element(1))
     s = e0.ladder3pt(sk3, xp3, xq3, xr3)
-    print('Bobs secret generator:', s)
+#    print('Bobs secret generator:', s)
     [eA, x1, x2, x3] = e0.iso3e(e3, s, xp2, xq2, xr2)
     return [x1.getx(), x2.getx(), x3.getx()]
 

@@ -9,6 +9,7 @@ from montgomery import MontgomeryCurve
 from montgomery import isogen2, isogen3, isoex2, isoex3
 from parameters import toy_example, costello, gost_128
 import time
+from random import randint
 
 e2 = 0
 e3 = 0
@@ -53,7 +54,7 @@ print("p =", p)
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
 start = time.time()
-sk2 = 2 ** 484 - 123456789009876543210
+sk2 = randint(0, 2 ** e2)
 print('skAlice =', sk2)
 pkAlice = isogen2(E0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3)
 print('pkAlice = ', pkAlice)
@@ -62,7 +63,7 @@ print('pkAlice = ', pkAlice)
 #c.seta(pkAlice[0], pkAlice[1], pkAlice[2])
 #print('Alice image curve', c)
 
-sk3 = 2 ** 484 + 123456789009876543210
+sk3 = randint(0, 3 ** e3)
 print('skBob =', sk3)
 pkBob = isogen3(E0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3)
 print('pkBob = ', pkBob)
