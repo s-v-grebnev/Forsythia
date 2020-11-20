@@ -79,4 +79,3 @@ print('jBob = ', j2)
 
 end = time.time()
 print('Time elapsed:', end - start, 's')
-# print(GFp2element(79, 271) // GFp2element(430, 153))
