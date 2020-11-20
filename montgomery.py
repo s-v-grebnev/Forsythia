@@ -329,6 +329,44 @@ class MontgomeryCurve:
                 X3 = self.iso2_eval(T, X3, curve)
         return [curve, X1, X2, X3]
 
+    def iso2eby4(self, e2, S,  X11 = None, X22 = None, X33 = None):
+        """
+        Compute and optionally evaluate a 2^e2-isogeny
+        Alg. 17 from [SIKE]
+        :param e2:
+        :param S1:
+        :param X11:
+        :param X22:
+        :param X33:
+        :return:
+        """
+        if not X11 is None:
+            X1 = MontgomeryPoint(X11, GFp2element(1), self)
+        else:
+            X1 = None
+        if not X22 is None:
+            X2 = MontgomeryPoint(X22, GFp2element(1), self)
+        else:
+            X2 = None
+        if not X33 is None:
+            X3 = MontgomeryPoint(X33, GFp2element(1), self)
+        else:
+            X3 = None
+        curve = None
+        for e in range(e2-2, -2, -2):   #Check ranges!
+
+            T = S.mul2e(e)
+            [curve, K1, K2, K3] = self.iso4_curve(T)
+            if not e == 0:
+                S = self.iso4_eval(K1, K2, K3, S, curve)
+            if not X1 is None:
+                X1 = self.iso4_eval(K1, K2, K3, X1, curve)
+            if not X2 is None:
+                X2 = self.iso4_eval(K1, K2, K3, X2,  curve)
+            if not X3 is None:
+                X3 = self.iso4_eval(K1, K2, K3, X3, curve)
+        return [curve, X1, X2, X3]
+
     def iso3e(self, e3, S1,  X11 = None, X22 = None, X33 = None):
         """
         Compute and optionally evaluate a 3^e-isogeny
@@ -484,7 +522,7 @@ def isogen2(e0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
     s = e0.ladder3pt(sk2, xp2, xq2, xr2)
 #    print('Alices secret generator:', s)
     [curve, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
-    print('Alices public curve', curve)
+#    print('Alices public curve', curve)
     return [x1.getx(), x2.getx(), x3.getx()]
 
 def isogen3(e0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
