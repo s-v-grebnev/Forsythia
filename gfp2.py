@@ -5,7 +5,7 @@ Class GFp2element: represents GF(p^2)
 
 from ecver.gcd import modinv
 
-p = 431
+from ecver.p import p
 
 class GFp2element:
     a = 0

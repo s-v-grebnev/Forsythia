@@ -316,6 +316,7 @@ class MontgomeryCurve:
             X3 = None
         curve = None
         for e in range(e2-1, -1, -1):   #Check ranges!
+
             T = S.mul2e(e)
             curve = self.iso2_curve(T)
             if not e == 0:
@@ -386,10 +387,10 @@ class MontgomeryPoint:
             self.Z = GFp2element(1)
 
     def __str__(self):
-        return ('(' + str(self.X) + ':' + str(self.Z) + '); x = ' + str(self.X // self.Z))
+        return ('(' + str(self.X) + ' : ' + str(self.Z) + '); x = ' + str(self.X // self.Z))
 
     def __repr__(self):
-        return ('(' + str(self.X) + ':' + str(self.Z) + '); x = ' + str(self.X // self.Z))
+        return ('(' + str(self.X) + ' : ' + str(self.Z) + '); x = ' + str(self.X // self.Z))
 
 
     def __add__(self, other):
@@ -510,9 +511,9 @@ def isoex2(sk2, e2, pk):
     """
     Generate shared key in 2^e2-torsion
     Alg. 23 from [SIKE]
-    :param sk2:
-    :param e2:
-    :param pk:
+    :param sk2: Alice's secret key
+    :param e2: Power of 2
+    :param pk: Bob's public key encoded as three points
     :return:
     """
     curve = MontgomeryCurve(GFp2element(1))
@@ -522,16 +523,15 @@ def isoex2(sk2, e2, pk):
     curve.seta(x1, x2, x3)
     s = curve.ladder3pt(sk2, x1, x2, x3)
     [image, _, _, _] = curve.iso2e(e2, s)
-#    print('CurveAlice,', image)
     return image.jinv()
 
 def isoex3(sk3, e3, pk):
     """
     Generate shared key in 3^e3-torsion
     Alg. 24 from [SIKE]
-    :param sk3:
-    :param e3:
-    :param pk:
+    :param sk3: Bob's secret key
+    :param e3: Power of 3
+    :param pk: Alice's public key encoded as three points
     :return:
     """
     curve = MontgomeryCurve(GFp2element(1))
@@ -541,5 +541,4 @@ def isoex3(sk3, e3, pk):
     curve.seta(x1, x2, x3)
     s = curve.ladder3pt(sk3, x1, x2, x3)
     [image, _, _, _] = curve.iso3e(e3, s)
- #   print('CurveBob,', image)
     return image.jinv()
