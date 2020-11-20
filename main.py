@@ -54,7 +54,7 @@ print("p =", p)
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
 start = time.time()
-sk2 = randint(0, 2 ** e2)
+sk2 = randint(0, 2 ** e2) * 2
 print('skAlice =', sk2)
 pkAlice = isogen2(E0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3)
 print('pkAlice = ', pkAlice)
