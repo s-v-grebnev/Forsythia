@@ -1,13 +1,13 @@
 #
-# implementation of the Forsythia key exchange protocol
+# Implementation of the Forsythia key exchange protocol
 # (c) 2020 Sergey Grebnev, s.v.grebnev@yandex.ru
 #
 
-from ecver.p import p
+from ecver.globals import p, initialize
 from gfp2 import GFp2element
 from montgomery import MontgomeryCurve
 from montgomery import isogen2, isogen3, isoex2, isoex3
-from parameters import toy_example, costello, gost_128
+from parameters import toy_example, gost_128
 import time
 from random import randint
 
@@ -24,12 +24,14 @@ A = None
 C = None
 E0 = None
 
+
 def ParseParameters(params):
     global p, e2, e3, f, xp2, xq2, xr2, xp3, xq3, xr3, A, C, E0
     e2 = params['eA']
     e3 = params['eB']
     f = params['f']
-    p = (2 ** e2) * (3 ** e3) * f - 1
+    initialize((2 ** e2) * (3 ** e3) * f - 1)
+    print(p)
     A = GFp2element(params['A'][0], params['A'][1])
 #    C = GFp2element(params['C'][0], params['C'][1])
     E0 = MontgomeryCurve(A, GFp2element(1))
@@ -48,6 +50,7 @@ def ParseParameters(params):
 # Encode basis points as x-coordinates of P3, Q3, R3=P3-Q3
     l = (yp3 + yq3) // (xp3 - xq3)
     xr3 = l * l - (xp3 + xq3) - A
+
 
 ParseParameters(gost_128)
 print("p =", p)

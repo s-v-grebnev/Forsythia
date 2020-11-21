@@ -4,7 +4,6 @@ Classes for working with Montgomery curves and isogenies
 """
 
 from gfp2 import GFp2element
-#from gfp2 import p
 
 class MontgomeryCurve:
     A = None  # GFp2element(0, 0, 0, 16)
