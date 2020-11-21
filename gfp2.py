@@ -4,7 +4,17 @@ Class GFp2element: represents GF(p^2)
 """
 
 from ecver.gcd import modinv
-from ecver.globals import getp
+
+p = None
+
+
+def getp():
+    return p
+
+
+def initialize(p0):
+    global p
+    p = p0
 
 
 class GFp2element:
@@ -28,28 +38,28 @@ class GFp2element:
         #        assert(p == other.p)
         if isinstance(other, int):
             return GFp2element(self.a + other, self.b)
-        return GFp2element((self.a + other.a) % getp(), (self.b + other.b) % getp())
+        return GFp2element((self.a + other.a) % p, (self.b + other.b) % p)
 
     def __sub__(self, other):
         #        assert(p == other.p)
         if isinstance(other, int):
             return GFp2element(self.a - other, self.b)
-        return GFp2element((self.a - other.a) % getp(), (self.b - other.b) % getp())
+        return GFp2element((self.a - other.a) % p, (self.b - other.b) % p)
 
     def __mul__(self, other):
         if isinstance(other, int):
-            return GFp2element((self.a * other) % getp(), (self.b * other) % getp())
-        return GFp2element((self.a * other.a - self.b * other.b) % getp(),
-                           (self.a * other.b + self.b * other.a) % getp())
+            return GFp2element((self.a * other) % p, (self.b * other) % p)
+        return GFp2element((self.a * other.a - self.b * other.b) % p,
+                           (self.a * other.b + self.b * other.a) % p)
 
     def modinv(self):
-        j = modinv((self.a * self.a + self.b * self.b) % getp(), getp())
-        return GFp2element((self.a * j) % getp(), (-self.b * j) % getp())
+        j = modinv((self.a * self.a + self.b * self.b) % p, p)
+        return GFp2element((self.a * j) % p, (-self.b * j) % p)
 
     def __truediv__(self, other):
         #        assert(p == other.p)
         if isinstance(other, int):
-            j = modinv(other, getp())
+            j = modinv(other, p)
         else:
             j = other.modinv()
         return self * j
@@ -57,7 +67,7 @@ class GFp2element:
     def __floordiv__(self, other):
         #        assert(p == other.p)
         if isinstance(other, int):
-            j = modinv(other, getp())
+            j = modinv(other, p)
         else:
             j = other.modinv()
         return self * j

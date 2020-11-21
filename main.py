@@ -3,8 +3,8 @@
 # (c) 2020 Sergey Grebnev, s.v.grebnev@yandex.ru
 #
 
-from ecver.globals import p, initialize
-from gfp2 import GFp2element
+#from ecver.globals import p, initialize
+from gfp2 import GFp2element, getp, initialize as modulo_initialize
 from montgomery import MontgomeryCurve
 from montgomery import isogen2, isogen3, isoex2, isoex3
 from parameters import toy_example, gost_128
@@ -30,8 +30,8 @@ def ParseParameters(params):
     e2 = params['eA']
     e3 = params['eB']
     f = params['f']
-    initialize((2 ** e2) * (3 ** e3) * f - 1)
-    print(p)
+#    initialize((2 ** e2) * (3 ** e3) * f - 1)
+    modulo_initialize((2 ** e2) * (3 ** e3) * f - 1)
     A = GFp2element(params['A'][0], params['A'][1])
 #    C = GFp2element(params['C'][0], params['C'][1])
     E0 = MontgomeryCurve(A, GFp2element(1))
@@ -53,7 +53,7 @@ def ParseParameters(params):
 
 
 ParseParameters(gost_128)
-print("p =", p)
+print("p =", getp())
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
 start = time.time()
