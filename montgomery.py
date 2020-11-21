@@ -293,7 +293,7 @@ class MontgomeryCurve:
     def iso2e(self, e2, S1,  X11 = None, X22 = None, X33 = None):
         """
         Compute and optionally evaluate a 2^e2-isogeny
-        Alg. 17 from [SIKE]
+
         :param e2:
         :param S1:
         :param X11:
