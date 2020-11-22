@@ -7,7 +7,7 @@
 from gfp2 import GFp2element, getp, initialize as modulo_initialize
 from montgomery import MontgomeryCurve
 from montgomery import isogen2, isogen3, isoex2, isoex3
-from parameters import toy_example, gost_128
+from parameters import params
 import time
 from random import randint
 
@@ -30,10 +30,9 @@ def ParseParameters(params):
     e2 = params['eA']
     e3 = params['eB']
     f = params['f']
-#    initialize((2 ** e2) * (3 ** e3) * f - 1)
+# Very first step -- initialization of the modulus
     modulo_initialize((2 ** e2) * (3 ** e3) * f - 1)
     A = GFp2element(params['A'][0], params['A'][1])
-#    C = GFp2element(params['C'][0], params['C'][1])
     E0 = MontgomeryCurve(A, GFp2element(1))
     xp2 = GFp2element(params['xp2'][0], params['xp2'][1]) // GFp2element(params['zp2'][0], params['zp2'][1])
     xq2 = GFp2element(params['xq2'][0], params['xq2'][1]) // GFp2element(params['zq2'][0], params['zq2'][1])
@@ -42,7 +41,6 @@ def ParseParameters(params):
 # Encode basis points as x-coordinates of P2, Q2, R2=P2-Q2
     l = (yp2 + yq2) // (xp2 - xq2)
     xr2 = l * l - (xp2 + xq2) - A
-
     xp3 = GFp2element(params['xp3'][0], params['xp3'][1]) // GFp2element(params['zp3'][0], params['zp3'][1])
     xq3 = GFp2element(params['xq3'][0], params['xq3'][1]) // GFp2element(params['zq3'][0], params['zq3'][1])
     yp3 = GFp2element(params['yp3'][0], params['yp3'][1]) // GFp2element(params['zp3'][0], params['zp3'][1])
@@ -52,7 +50,7 @@ def ParseParameters(params):
     xr3 = l * l - (xp3 + xq3) - A
 
 
-ParseParameters(gost_128)
+ParseParameters(params['p485'])
 print("p =", getp())
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
@@ -82,3 +80,5 @@ print('jBob = ', j2)
 
 end = time.time()
 print('Time elapsed:', end - start, 's')
+
+

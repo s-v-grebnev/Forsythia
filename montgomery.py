@@ -190,13 +190,16 @@ class MontgomeryCurve:
         Ap24 = P4.X * P4.X
         Ap24 = Ap24 + Ap24
         Ap24 = Ap24 * Ap24
+
         A = Ap24 * 4 - C24 * 2
+
         curve = MontgomeryCurve(A, C24)
         return [curve, K1, K2, K3]
 
     def iso4_eval(self, K1, K2, K3, Q, image):
         """
-        Alg. 14 from [SIKE]
+        Evaluate a 4-isogeny at a point
+        Alg. 14 from [SIKE] has a bug, don't know how to fix it =(
         :param K1:
         :param K2:
         :param K3:
@@ -213,7 +216,7 @@ class MontgomeryCurve:
         # t0 = t0 * t1
         # t0 = t0 * K1
         # t1 = QX + QZ
-        # QZ = QX-QZ
+        # QZ = QX - QZ
         # t1 = t1 * t1
         # QZ = QZ * QZ
         # QX = t0 + t1
@@ -314,8 +317,7 @@ class MontgomeryCurve:
         else:
             X3 = None
         curve = None
-        for e in range(e2-1, -1, -1):   #Check ranges!
-
+        for e in range(e2-1, -1, -1):
             T = S.mul2e(e)
             curve = self.iso2_curve(T)
             if not e == 0:
@@ -352,8 +354,7 @@ class MontgomeryCurve:
         else:
             X3 = None
         curve = None
-        for e in range(e2-2, -2, -2):   #Check ranges!
-
+        for e in range(e2-2, -2, -2):
             T = S.mul2e(e)
             [curve, K1, K2, K3] = self.iso4_curve(T)
             if not e == 0:
@@ -391,7 +392,7 @@ class MontgomeryCurve:
         else:
             X3 = None
         curve = None
-        for e in range(e3-1, -1, -1):   #Check ranges!
+        for e in range(e3-1, -1, -1):   #
             T = S.mul3e(e)
             [curve, K1, K2] = self.iso3_curve(T)
             if not e == 0:
@@ -507,35 +508,36 @@ def isogen2(e0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
     """
     Generate public key in 2^e-torsion
     Alg. 21 from [SIKE]
-    :param sk2:
-    :param e2:
-    :param xp2:
-    :param xq2:
-    :param xr2:
-    :param xp3:
-    :param xq3:
-    :param xr3:
-    :return:
+    :param e0: starting curve
+    :param sk2: Alice's secret key
+    :param xp2: X-coordinate of Alice's basis point P
+    :param xq2: X-coordinate of Alice's basis point Q
+    :param xr2: X-coordinate of Alice's basis point Q-P
+    :param xp3: X-coordinate of Bob's basis point P
+    :param xq3: X-coordinate of Bob's basis point Q
+    :param xr3: X-coordinate of Bob's basis point Q-P
+    :return: public key encoded by the x-coordinates of the three points
     """
     s = e0.ladder3pt(sk2, xp2, xq2, xr2)
 #    print('Alices secret generator:', s)
     [curve, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
-#    print('Alices public curve', curve)
+    print('Alices public curve by 2', curve)
     return [x1.getx(), x2.getx(), x3.getx()]
 
 def isogen3(e0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
     """
     Generate public key in 3^e3-torsion
     Alg. 22 from [SIKE]
-    :param sk3:
-    :param e3:
-    :param xp2:
-    :param xq2:
-    :param xr2:
-    :param xp3:
-    :param xq3:
-    :param xr3:
-    :return:
+    :param e0: starting curve
+    :param sk3: Bob's secret key
+    :param e3: Degree of 3
+    :param xp2: X-coordinate of Alice's basis point P
+    :param xq2: X-coordinate of Alice's basis point Q
+    :param xr2: X-coordinate of Alice's basis point Q-P
+    :param xp3: X-coordinate of Bob's basis point P
+    :param xq3: X-coordinate of Bob's basis point Q
+    :param xr3: X-coordinate of Bob's basis point Q-P
+    :return: public key encoded by the x-coordinates of the three points
     """
     s = e0.ladder3pt(sk3, xp3, xq3, xr3)
 #    print('Bobs secret generator:', s)
@@ -549,7 +551,7 @@ def isoex2(sk2, e2, pk):
     :param sk2: Alice's secret key
     :param e2: Power of 2
     :param pk: Bob's public key encoded as three points
-    :return:
+    :return: j-invariant of the shared curve
     """
     curve = MontgomeryCurve(GFp2element(1))
     x1 = pk[0]
@@ -567,7 +569,7 @@ def isoex3(sk3, e3, pk):
     :param sk3: Bob's secret key
     :param e3: Power of 3
     :param pk: Alice's public key encoded as three points
-    :return:
+    :return:  j-invariant of the shared curve
     """
     curve = MontgomeryCurve(GFp2element(1))
     x1 = pk[0]

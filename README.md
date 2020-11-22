@@ -6,6 +6,10 @@ Licensed under MIT license
 
 **References:**
 
+[DeFeo]  De Feo L., Jao D., Plût J. Towards quantum-resistant cryptosystems from
+supersingular elliptic curve isogenies. // Journal of Math. Cryptology, 2014. Vol.
+8(3). P. 209–247.
+
 [SIKE]  Jao D. et al. Supersingular Isogeny Key Encapsulation. https://sike.org
 — 2017.
 

@@ -5,6 +5,10 @@ Class GFp2element: represents GF(p^2)
 
 from ecver.gcd import modinv
 
+#
+# Modulus
+#
+
 p = None
 
 
