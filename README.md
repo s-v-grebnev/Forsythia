@@ -6,6 +6,10 @@ Licensed under MIT license
 
 **References:**
 
+[Forsythia] Гребнев С., Ключарёв П., Коренева А., Кошелев Д., Тараскин О., Тулебаев А. 
+"Форзиция": протокол выработки общего ключа на основе аппарата
+изогений суперсингулярных эллиптических кривых (проект). - 2020.
+
 [DeFeo]  De Feo L., Jao D., Plût J. Towards quantum-resistant cryptosystems from
 supersingular elliptic curve isogenies. // Journal of Math. Cryptology, 2014. Vol.
 8(3). P. 209–247.
