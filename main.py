@@ -52,7 +52,7 @@ def ParseParameters(params):
 
 ParseParameters(params['forsythia80'])
 print("p =", getp())
-print('E0:', E0, '; j(E0) =', E0.jinv())
+print('E0:', E0, ';\nj(E0) =', E0.jinv())
 
 start = time.time()
 sk2 = randint(0, 2 ** e2)

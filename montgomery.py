@@ -521,7 +521,7 @@ def isogen2(e0, sk2, e2, xp2, xq2, xr2, xp3, xq3, xr3):
     s = e0.ladder3pt(sk2, xp2, xq2, xr2)
 #    print('Alices secret generator:', s)
     [curve, x1, x2, x3] = e0.iso2e(e2, s, xp3, xq3, xr3)
-    print('Alices public curve by 2', curve)
+#    print('Alices public curve by 2', curve)
     return [x1.getx(), x2.getx(), x3.getx()]
 
 def isogen3(e0, sk3, e3, xp2, xq2, xr2, xp3, xq3, xr3):
