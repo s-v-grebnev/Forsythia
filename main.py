@@ -50,7 +50,7 @@ def ParseParameters(params):
     xr3 = l * l - (xp3 + xq3) - A
 
 
-ParseParameters(params['p485'])
+ParseParameters(params['forsythia80'])
 print("p =", getp())
 print('E0:', E0, '; j(E0) =', E0.jinv())
 
