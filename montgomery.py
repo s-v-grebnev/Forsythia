@@ -231,11 +231,11 @@ class MontgomeryCurve:
         t0 = t0 * t1
         t0 = t0 * K1
         t1 = XPQ + ZPQ
-        ZPQ = XPQ-ZPQ
+        ZPQ = XPQ - ZPQ
         t1 = t1 * t1
         ZPQ = ZPQ * ZPQ
         XPQ = t0 + t1
-        t0 = ZPQ - t1
+        t0 = ZPQ - t0
         XPQ = XPQ * t1
         ZPQ = ZPQ * t0
 
@@ -559,7 +559,7 @@ def isoex2(sk2, e2, pk):
     x3 = pk[2]
     curve.seta(x1, x2, x3)
     s = curve.ladder3pt(sk2, x1, x2, x3)
-    [image, _, _, _] = curve.iso2e(e2, s)
+    [image, _, _, _] = curve.iso2eby4(e2, s)
     return image.jinv()
 
 def isoex3(sk3, e3, pk):

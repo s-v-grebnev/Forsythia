@@ -34,23 +34,14 @@ def ParseParameters(params):
     modulo_initialize((2 ** e2) * (3 ** e3) * f - 1)
     A = GFp2element(params['A'][0], params['A'][1])
     E0 = MontgomeryCurve(A, GFp2element(1))
-    xp2 = GFp2element(params['xp2'][0], params['xp2'][1]) // GFp2element(params['zp2'][0], params['zp2'][1])
-    xq2 = GFp2element(params['xq2'][0], params['xq2'][1]) // GFp2element(params['zq2'][0], params['zq2'][1])
-    yp2 = GFp2element(params['yp2'][0], params['yp2'][1]) // GFp2element(params['zp2'][0], params['zp2'][1])
-    yq2 = GFp2element(params['yq2'][0], params['yq2'][1]) // GFp2element(params['zq2'][0], params['zq2'][1])
-# Encode basis points as x-coordinates of P2, Q2, R2=P2-Q2
-    l = (yp2 + yq2) // (xp2 - xq2)
-    xr2 = l * l - (xp2 + xq2) - A
-    xp3 = GFp2element(params['xp3'][0], params['xp3'][1]) // GFp2element(params['zp3'][0], params['zp3'][1])
-    xq3 = GFp2element(params['xq3'][0], params['xq3'][1]) // GFp2element(params['zq3'][0], params['zq3'][1])
-    yp3 = GFp2element(params['yp3'][0], params['yp3'][1]) // GFp2element(params['zp3'][0], params['zp3'][1])
-    yq3 = GFp2element(params['yq3'][0], params['yq3'][1]) // GFp2element(params['zq3'][0], params['zq3'][1])
-# Encode basis points as x-coordinates of P3, Q3, R3=P3-Q3
-    l = (yp3 + yq3) // (xp3 - xq3)
-    xr3 = l * l - (xp3 + xq3) - A
+    xp2 = GFp2element(params['xp2'][0], params['xp2'][1])
+    xq2 = GFp2element(params['xq2'][0], params['xq2'][1])
+    xr2 = GFp2element(params['xr2'][0], params['xr2'][1])
+    xp3 = GFp2element(params['xp3'][0], params['xp3'][1])
+    xq3 = GFp2element(params['xq3'][0], params['xq3'][1])
+    xr3 = GFp2element(params['xr3'][0], params['xr3'][1])
 
-
-ParseParameters(params['forsythia80'])
+ParseParameters(params['forsythia128'])
 print("p =", getp())
 print('E0:', E0, ';\nj(E0) =', E0.jinv())
 
